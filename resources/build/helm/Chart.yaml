@@ -1,0 +1,4 @@
+name: hl-course-client
+description: Deploy a hl-course-client app
+version: 0.1.0
+appVersion: 0.1.0

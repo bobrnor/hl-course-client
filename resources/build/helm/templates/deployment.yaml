@@ -5,7 +5,7 @@ metadata:
   labels:
     app: hl-course
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       run: hl-course-client

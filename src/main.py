@@ -2,6 +2,8 @@
 import sys
 import time
 import threading
+import requests
+from threading import Thread, Lock
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
@@ -15,18 +17,33 @@ class HealthHandler(BaseHTTPRequestHandler):
         return
 
 
-def client_func():
-    iteration = 0
+mutex = Lock()
+tokens = []
+
+
+def register_client_func():
     while True:
-        sys.stderr.write('client iteration #{0}\n'.format(iteration))
-        iteration += 1
-        time.sleep(5)
+        mutex.acquire()
+        r = requests.post('http://hl-course-server-service/user')
+        print(r.text)
+        mutex.release()
+        time.sleep(1)
+
+
+def edit_client_func():
+    while True:
+        mutex.acquire()
+        mutex.release()
+        time.sleep(0.3)
 
 
 if __name__ == '__main__':
-    my_thread = threading.Thread(target=client_func)
-    my_thread.start()
+    my_thread0 = threading.Thread(target=register_client_func)
+    my_thread0.start()
+
+    my_thread1 = threading.Thread(target=edit_client_func)
+    my_thread1.start()
 
     server = HTTPServer(('0.0.0.0', 8080), HealthHandler)
-    sys.stderr.write('listening for /healthz on 0.0.0.0:8080/healthz\n')
+    print('listening for /healthz on 0.0.0.0:8080/healthz\n')
     server.serve_forever()
